@@ -20,9 +20,10 @@ interface DocumentChunk {
 }
 
 const BASE_URL = "https://docs.truecontext.com";
-const MAX_PAGES = 100; // Limit for initial crawl
+const MAX_PAGES = 50; // Limit for initial crawl (reduced for faster testing)
 const visitedUrls = new Set<string>();
 const pages: DocPage[] = [];
+const errors: string[] = [];
 
 async function crawlPage(browser: any, url: string): Promise<void> {
   if (visitedUrls.has(url) || visitedUrls.size >= MAX_PAGES) {
@@ -45,10 +46,16 @@ async function crawlPage(browser: any, url: string): Promise<void> {
     const title = $("h1").first().text().trim() || $("title").text().trim();
 
     // Remove navigation, footer, and other non-content elements
-    $("nav, footer, script, style, .navigation, .sidebar").remove();
+    $("nav, footer, script, style, .navigation, .sidebar, header, .header").remove();
 
-    // Extract main content
-    const mainContent = $("main, article, .content, .documentation").first();
+    // Try multiple selectors to find main content
+    let mainContent = $("main").first();
+    if (mainContent.length === 0) mainContent = $("article").first();
+    if (mainContent.length === 0) mainContent = $('[role="main"]').first();
+    if (mainContent.length === 0) mainContent = $(".content").first();
+    if (mainContent.length === 0) mainContent = $("#content").first();
+    if (mainContent.length === 0) mainContent = $("body"); // Fallback to body
+
     const content = mainContent.text().trim().replace(/\s+/g, " ");
 
     // Extract sections
@@ -70,8 +77,16 @@ async function crawlPage(browser: any, url: string): Promise<void> {
       }
     });
 
-    if (content) {
+    // Debug output
+    console.log(`  Title: ${title.substring(0, 50)}...`);
+    console.log(`  Content length: ${content.length}`);
+    console.log(`  Sections found: ${sections.length}`);
+
+    if (content && content.length > 100) {
       pages.push({ url, title, content, sections });
+      console.log(`  ✓ Page added`);
+    } else {
+      console.log(`  ✗ Skipped (insufficient content)`);
     }
 
     // Find links to other documentation pages
@@ -100,7 +115,9 @@ async function crawlPage(browser: any, url: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error(`Error crawling ${url}:`, error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(`  ✗ Error crawling ${url}: ${errorMsg}`);
+    errors.push(`${url}: ${errorMsg}`);
   }
 }
 
@@ -197,7 +214,23 @@ async function main() {
   try {
     await crawlPage(browser, BASE_URL);
 
-    console.log(`\nCrawled ${pages.length} pages`);
+    console.log("\n" + "=".repeat(60));
+    console.log(`📊 Summary:`);
+    console.log(`   URLs visited: ${visitedUrls.size}`);
+    console.log(`   Pages extracted: ${pages.length}`);
+    console.log(`   Errors: ${errors.length}`);
+
+    if (pages.length === 0) {
+      console.log("\n⚠️  WARNING: No pages were successfully extracted!");
+      console.log("This usually means the CSS selectors need adjustment.");
+      console.log("\nFirst few URLs visited:");
+      Array.from(visitedUrls).slice(0, 5).forEach(url => console.log(`  - ${url}`));
+
+      if (errors.length > 0) {
+        console.log("\nErrors encountered:");
+        errors.slice(0, 3).forEach(err => console.log(`  - ${err}`));
+      }
+    }
 
     // Create chunks
     const allChunks: DocumentChunk[] = [];
@@ -206,7 +239,7 @@ async function main() {
       allChunks.push(...chunks);
     }
 
-    console.log(`Created ${allChunks.length} document chunks`);
+    console.log(`\n📦 Created ${allChunks.length} document chunks`);
 
     // Save to file
     const dataDir = path.join(process.cwd(), "data");
@@ -216,8 +249,12 @@ async function main() {
       JSON.stringify(allChunks, null, 2)
     );
 
-    console.log("\n✅ Documents saved to data/documents.json");
-    console.log(`Total chunks: ${allChunks.length}`);
+    if (allChunks.length > 0) {
+      console.log("\n✅ Documents saved to data/documents.json");
+      console.log(`Total chunks: ${allChunks.length}`);
+    } else {
+      console.log("\n❌ No documents to save - check the selectors!");
+    }
 
   } finally {
     await browser.close();

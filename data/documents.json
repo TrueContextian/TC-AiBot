@@ -1,0 +1,114 @@
+[
+  {
+    "content": "Choose Your Path\n\nAccess targeted documentation for your role and get started quickly Workflow Designers Build structured workflows that help technicians complete work efficiently. Design forms that provide clear visual organization. Core Function: As a workflow designer, build forms that adapt to field conditions and guide technicians through their work. Form Pages and Sections Form Layout Options Repeatable Sections Repeatable Section Summary Tables Conditional Logic Answer Exceptions Resource Library Multi-Language Support for your Global Workforce Field Operations Coordinators Dispatch work orders, monitor field progress, and manage team workflows. Track completion status and manage approvals. Core Function: As a coordinator, assign work efficiently and track progress across your field teams. Automated and Manual Dispatching Options Form Transfer and Collaboration Work Status and Tracking Approvals Tracking and Management Analytics and Reporting Data Integration Specialists Connect",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Choose Your Path"
+    }
+  },
+  {
+    "content": "field data to back-office systems. Set up automated data routing and document generation from field submissions. Core Function: As an integration specialist, ensure that field data flows seamlessly to and from FSM, EAM, CRM, and other enterprise systems. Data Source Options Dropdown, Multiselect, and Radio Button Questions Data Routing Document Generation from Form Data Integration with Other Mobile Apps (Offline/Online) REST API Documentation Custom HTTP Integrations Salesforce Integration Team Admins (Admin Users) Ensure field users can access the forms and data they need to do their jobs, while giving work managers and approvers appropriate access for tracking and workflow management. Core Function: As a team admin, set up user access and permissions to ensure everyone has the right level of access—field users to mobile forms, managers to dispatching and tracking, and approvers to workflow review. Access Management Reference Guide FormSpace Management FormSpace Permissions Managing",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Choose Your Path"
+    }
+  },
+  {
+    "content": "Workflow Designers\n\nBuild structured workflows that help technicians complete work efficiently. Design forms that provide clear visual organization. Core Function: As a workflow designer, build forms that adapt to field conditions and guide technicians through their work. Form Pages and Sections Form Layout Options Repeatable Sections Repeatable Section Summary Tables Conditional Logic Answer Exceptions Resource Library Multi-Language Support for your Global Workforce",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Workflow Designers"
+    }
+  },
+  {
+    "content": "Field Operations Coordinators\n\nDispatch work orders, monitor field progress, and manage team workflows. Track completion status and manage approvals. Core Function: As a coordinator, assign work efficiently and track progress across your field teams. Automated and Manual Dispatching Options Form Transfer and Collaboration Work Status and Tracking Approvals Tracking and Management Analytics and Reporting",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Field Operations Coordinators"
+    }
+  },
+  {
+    "content": "Data Integration Specialists\n\nConnect field data to back-office systems. Set up automated data routing and document generation from field submissions. Core Function: As an integration specialist, ensure that field data flows seamlessly to and from FSM, EAM, CRM, and other enterprise systems. Data Source Options Dropdown, Multiselect, and Radio Button Questions Data Routing Document Generation from Form Data Integration with Other Mobile Apps (Offline/Online) REST API Documentation Custom HTTP Integrations Salesforce Integration",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Data Integration Specialists"
+    }
+  },
+  {
+    "content": "Team Admins (Admin Users)\n\nEnsure field users can access the forms and data they need to do their jobs, while giving work managers and approvers appropriate access for tracking and workflow management. Core Function: As a team admin, set up user access and permissions to ensure everyone has the right level of access—field users to mobile forms, managers to dispatching and tracking, and approvers to workflow review. Access Management Reference Guide FormSpace Management FormSpace Permissions Managing Groups Managing Users Team Setup Integration Setup (Connections)",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Team Admins (Admin Users)"
+    }
+  },
+  {
+    "content": "Set Up Your Field Technicians\n\nEnsure your team is set up with the TrueContext Mobile App to complete work orders, capture data, and access job resources, even when they’re offline. Your team of field techs can complete workflows efficiently with guided workflows that work in any environment. Learn how field users can: Download the mobile app on any device Receive or access assigned forms Navigate a form Save forms to continue later Use their camera to answer form questions Contribute to a multi-user workflow",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Set Up Your Field Technicians"
+    }
+  },
+  {
+    "content": "FIELD TECH EXPERIENCE\n\nProvide technicians with job resources and contextual information in a clear, visual format Visual Form Structure Organize complex workflows with clear visual hierarchy using pages, sections, and logical groupings. Field technicians can quickly scan, navigate, and complete forms efficiently with layouts that reduce cognitive load and speed up data entry. Resources and the Resource Library Deploy manuals, procedures, and visual guides on mobile devices (accessible offline). Keep critical documentation available even without connectivity. Data Sources and Lookups Pull asset data, customer information, and historical records from your integrated systems into mobile forms. Reduce data entry and provide field technicians with contextual information from your existing databases.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "FIELD TECH EXPERIENCE"
+    }
+  },
+  {
+    "content": "WORKFLOW CREATION\n\nBuild adaptive workflows that guide technicians through complex procedures Conditional Logic Engine Add intelligent automation to your mobile forms. Use Conditional Logic to provide context for your field technicians, enhance their effectiveness, and enforce a workflow. Build workflows that adapt automatically to equipment types, service scenarios, or site conditions. Multi-Modal Data Capture Capture field data through photos, barcode scanning, audio recordings, sketches, and GPS coordinates. Choose the most efficient capture method for each data point. Repeatable Sections Build structured subforms that allow technicians to answer the same questions multiple times, creating multiple data rows—such as recording multiple inspection data points, or documenting hazard observations. Technicians see their entries in an efficient, navigable, summary table that makes it easy to review, edit, and add line items.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "WORKFLOW CREATION"
+    }
+  },
+  {
+    "content": "FORM BUILDING PLATFORM\n\nCreate and deploy workflows rapidly with visual, low-code tools Form Builder Use our low-code workflow designer to create field-first mobile forms that work across iOS, macOS, Android, and Windows devices, online or offline. Workflow Organization Organize forms and resources by business unit, function, or location with role-based access control and team management. Mobile App Platform Make it easy for remote workers to collect data on mobile devices, access company data in the field, and automatically share results with back-office systems—online or offline.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "FORM BUILDING PLATFORM"
+    }
+  },
+  {
+    "content": "SYSTEM INTEGRATION\n\nConnect field data with back-office systems and processes Data Sources and Destinations Pull data from and route data to FSM, EAM, CRM, and other enterprise systems with automated formatting and processing. Document Generation Transform field submissions into professional documents, reports, and compliance documentation across multiple formats, including PDF, Word, and structured data formats like XML and JSON. TrueContext REST API Integrate your existing systems and custom applications using our REST API, retrieving form submissions, managing users, and triggering workflows programmatically. Pre-Built Integrations Connect with enterprise systems through ready-to-use integrations including ServiceNow, Salesforce, Microsoft 365, Google and Google Workspace, and Amazon Web Services, for example.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "SYSTEM INTEGRATION"
+    }
+  },
+  {
+    "content": "ANALYTICS AND REPORTING\n\nMonitor workflow performance and optimize field operations Dashboard Configure dynamic reports that provide insights into form submissions by form, user, or location. Organize reports into pages for easy viewing and track submissions over specified time periods with customizable charts and map visualizations. Basic Analytics Create detailed insights into question-level data from form submissions. Build customized graphs with just a few clicks to track specific answers and analyze field data patterns. Advanced Analytics Connect field data to business intelligence platforms for comprehensive analysis. Build executive dashboards and reports, combine data from multiple forms, and integrate with other business systems for deeper insights.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "ANALYTICS AND REPORTING"
+    }
+  },
+  {
+    "content": "PLATFORM ADMIN\n\nManage users, security, and compliance across your mobile workforce User Management and Permissions Role-based access control that ensures field technicians can access their assigned forms, managers can dispatch and track work, and approvers can oversee workflows and review submissions. Security and Compliance Enterprise-grade security that protects data while maintaining regulatory compliance including SOC 2, HIPAA, and FDA requirements. Deployment Management Deployment of form updates and new workflows to mobile teams, ensuring everyone works with current versions and consistent procedures across all locations.",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "PLATFORM ADMIN"
+    }
+  },
+  {
+    "content": "Start Building your Field Workflows\n\nTransform your field operations with field-first mobile workflows TrueContext Quick Start Step-by-step guides for setting up and using the TrueContext mobile workflow platform. Get Started TrueContext University Explore our free, self-paced learning platform or accelerate your growth with instructor-led training. Learn more about TrueContext University Community Forum Connect with other organizations building mobile field workflows and share implementation strategies. Join the Community Technical Support Contact Technical Support if you need help or encounter any issues. How to Contact Technical Support",
+    "metadata": {
+      "url": "https://docs.truecontext.com",
+      "title": "TrueContext Documentation",
+      "section": "Start Building your Field Workflows"
+    }
+  }
+]
