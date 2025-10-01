@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 
 export default function Home() {
@@ -72,7 +72,7 @@ export default function Home() {
           <form onSubmit={onSubmit} className="flex gap-2">
             <input
               type="text"
-              value={input}
+              value={input || ""}
               onChange={handleInputChange}
               placeholder="Ask a question about TrueContext..."
               className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
@@ -80,7 +80,7 @@ export default function Home() {
             />
             <button
               type="submit"
-              disabled={isLoading || !input.trim()}
+              disabled={isLoading || !input?.trim()}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               Send

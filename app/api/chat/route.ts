@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText, convertToCoreMessages } from "ai";
+import { streamText } from "ai";
 import { searchDocuments } from "@/lib/simpleSearch";
 
 export const maxDuration = 30;
@@ -46,10 +46,8 @@ export async function POST(req: Request) {
           .join("\n---\n\n")
       : "No relevant documentation found. Please provide general guidance based on your knowledge.";
 
-    // Create system message with context
-    const systemMessage = {
-      role: "system" as const,
-      content: `You are a helpful AI assistant specialized in TrueContext documentation. Your job is to answer questions about TrueContext and provide exact step-by-step instructions to users.
+    // Create system prompt with context
+    const systemPrompt = `You are a helpful AI assistant specialized in TrueContext documentation. Your job is to answer questions about TrueContext and provide exact step-by-step instructions to users.
 
 IMPORTANT GUIDELINES:
 1. Always provide clear, step-by-step instructions when asked "how to" do something
@@ -63,23 +61,20 @@ Here is the relevant documentation context for this query:
 
 ${context}
 
-Now answer the user's question based on this context. If you cite information, mention which source it came from.`,
-    };
+Now answer the user's question based on this context. If you cite information, mention which source it came from.`;
 
-    // Convert messages to core format and add system message
-    const coreMessages = convertToCoreMessages([systemMessage, ...messages]);
-
-    console.log("Calling OpenAI API with", coreMessages.length, "messages");
+    console.log("Calling OpenAI API with", messages.length, "messages");
     console.log("Context docs found:", contextDocs.length);
 
-    const result = streamText({
-      model: openai("gpt-4-turbo-preview"),
-      messages: coreMessages,
+    const result = await streamText({
+      model: openai("gpt-4o"),
+      system: systemPrompt,
+      messages,
       temperature: 0.7,
       maxTokens: 2000,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
