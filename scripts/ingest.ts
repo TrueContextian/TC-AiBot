@@ -374,7 +374,6 @@ async function main() {
     );
 
     // Save crawl queue (URLs discovered but not yet crawled)
-    const totalCrawled = alreadyCrawledUrls.size + visitedUrls.size;
     const uncrawledUrls = Array.from(discoveredUrls).filter(
       url => !alreadyCrawledUrls.has(url) && !visitedUrls.has(url)
     );
