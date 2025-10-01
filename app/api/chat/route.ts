@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 import { searchDocuments } from "@/lib/simpleSearch";
 
@@ -7,8 +7,8 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   try {
     // Check API key
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not set!");
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error("ANTHROPIC_API_KEY is not set!");
       return new Response(
         JSON.stringify({ error: "API key not configured" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
@@ -63,11 +63,11 @@ ${context}
 
 Now answer the user's question based on this context. If you cite information, mention which source it came from.`;
 
-    console.log("Calling OpenAI API with", messages.length, "messages");
+    console.log("Calling Anthropic Claude with", messages.length, "messages");
     console.log("Context docs found:", contextDocs.length);
 
     const result = await streamText({
-      model: openai("gpt-4o"),
+      model: anthropic("claude-3-5-sonnet-20241022"),
       system: systemPrompt,
       messages,
       temperature: 0.7,
