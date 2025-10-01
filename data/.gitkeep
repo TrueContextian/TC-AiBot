@@ -1,0 +1,2 @@
+# This directory will contain the ingested documentation
+# Run `npm run ingest` to populate it with documents.json
