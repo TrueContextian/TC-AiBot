@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Message {
   role: "user" | "assistant";
@@ -13,6 +13,13 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isTeams, setIsTeams] = useState(false);
+
+  useEffect(() => {
+    // Detect if running in Microsoft Teams
+    const urlParams = new URLSearchParams(window.location.search);
+    setIsTeams(urlParams.get("teams") === "true");
+  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,14 +69,16 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-8">
+    <main className={`flex min-h-screen flex-col items-center justify-between ${isTeams ? 'p-4' : 'p-8'}`}>
       <div className="w-full max-w-4xl">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-2">TrueContext AI Assistant</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Ask me anything about TrueContext documentation
-          </p>
-        </header>
+        {!isTeams && (
+          <header className="mb-8 text-center">
+            <h1 className="text-4xl font-bold mb-2">TrueContext AI Assistant</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Ask me anything about TrueContext documentation
+            </p>
+          </header>
+        )}
 
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 min-h-[500px] flex flex-col">
           <div className="flex-1 overflow-y-auto mb-4 space-y-4">

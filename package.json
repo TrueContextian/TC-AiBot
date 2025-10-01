@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "ingest": "tsx scripts/ingest.ts",
-    "ingest:install": "npx playwright install chromium"
+    "ingest:install": "npx playwright install chromium",
+    "teams:package": "cd teams && zip -r TrueContextAI.zip manifest.json color.png outline.png 2>/dev/null || echo 'Add icons first: color.png (192x192) and outline.png (32x32)'"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.22",

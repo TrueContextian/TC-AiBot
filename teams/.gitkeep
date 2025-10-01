@@ -1,0 +1,7 @@
+# Teams App Files
+
+Place your icons here:
+- color.png (192x192px)
+- outline.png (32x32px)
+
+Then run: npm run teams:package

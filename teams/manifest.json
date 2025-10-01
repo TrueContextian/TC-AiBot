@@ -1,0 +1,50 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "YOUR_APP_ID_HERE",
+  "packageName": "com.truecontext.aibot",
+  "developer": {
+    "name": "TrueContext",
+    "websiteUrl": "https://www.truecontext.com",
+    "privacyUrl": "https://www.truecontext.com/privacy",
+    "termsOfUseUrl": "https://www.truecontext.com/terms"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "TrueContext AI",
+    "full": "TrueContext AI Documentation Assistant"
+  },
+  "description": {
+    "short": "AI assistant for TrueContext documentation",
+    "full": "An AI-powered assistant that helps you find information and step-by-step instructions from TrueContext documentation. Ask questions about forms, workflows, dispatching, integrations, and more."
+  },
+  "accentColor": "#0078D4",
+  "configurableTabs": [],
+  "staticTabs": [
+    {
+      "entityId": "tcaibot",
+      "name": "TrueContext AI",
+      "contentUrl": "https://YOUR_DEPLOYMENT_URL.vercel.app?teams=true",
+      "websiteUrl": "https://YOUR_DEPLOYMENT_URL.vercel.app",
+      "scopes": ["personal", "team"]
+    }
+  ],
+  "bots": [],
+  "connectors": [],
+  "composeExtensions": [],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "YOUR_DEPLOYMENT_URL.vercel.app"
+  ],
+  "webApplicationInfo": {
+    "id": "YOUR_AAD_APP_ID_HERE",
+    "resource": "api://YOUR_DEPLOYMENT_URL.vercel.app"
+  }
+}
