@@ -21,11 +21,13 @@ interface DocumentChunk {
 
 const BASE_URLS = [
   "https://docs.truecontext.com",
-  "https://live.prontoforms.com"
+  "https://live.prontoforms.com",
+  "https://community.truecontext.com"
 ];
 const START_URLS = [
   "https://docs.truecontext.com/1374411/Content/Home.htm", // Main documentation
-  "https://live.prontoforms.com/api-docs" // API documentation
+  "https://live.prontoforms.com/api-docs", // API documentation
+  "https://community.truecontext.com" // Community forum
 ];
 const MAX_PAGES = 500; // Increased limit for comprehensive crawl
 const visitedUrls = new Set<string>();
@@ -137,7 +139,8 @@ async function crawlPage(browser: any, url: string): Promise<void> {
           (
             absoluteUrl.includes("/Content/") ||
             absoluteUrl.includes("/Published/") ||
-            absoluteUrl.includes("/api-docs")
+            absoluteUrl.includes("/api-docs") ||
+            absoluteUrl.includes("community.truecontext.com")
           )
         ) {
           links.push(absoluteUrl);
