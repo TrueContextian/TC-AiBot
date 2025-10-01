@@ -71,7 +71,6 @@ Now answer the user's question based on this context. If you cite information, m
       system: systemPrompt,
       messages,
       temperature: 0.7,
-      maxTokens: 2000,
     });
 
     return result.toTextStreamResponse();

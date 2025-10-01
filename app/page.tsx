@@ -1,16 +1,64 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { useState } from "react";
 
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  id: string;
+}
+
 export default function Home() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
     setError(null);
-    handleSubmit(e);
+    const userMessage = { role: "user" as const, content: input, id: Date.now().toString() };
+    setMessages([...messages, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [...messages, userMessage] }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = "";
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          assistantMessage += chunk;
+
+          setMessages([
+            ...messages,
+            userMessage,
+            { role: "assistant" as const, content: assistantMessage, id: (Date.now() + 1).toString() },
+          ]);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,15 +120,15 @@ export default function Home() {
           <form onSubmit={onSubmit} className="flex gap-2">
             <input
               type="text"
-              value={input || ""}
-              onChange={handleInputChange}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question about TrueContext..."
               className="flex-1 p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
               disabled={isLoading}
             />
             <button
               type="submit"
-              disabled={isLoading || !input?.trim()}
+              disabled={isLoading || !input.trim()}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               Send
