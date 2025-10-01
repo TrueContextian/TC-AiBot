@@ -31,11 +31,18 @@ const START_URLS = [
 ];
 const MAX_PAGES = 500; // Increased limit for comprehensive crawl
 const visitedUrls = new Set<string>();
+const alreadyCrawledUrls = new Set<string>(); // URLs from previous runs
 const pages: DocPage[] = [];
 const errors: string[] = [];
 const discoveredUrls = new Set<string>(); // Track all discovered URLs
 
 async function crawlPage(browser: any, url: string): Promise<void> {
+  // Skip if already crawled in a previous run
+  if (alreadyCrawledUrls.has(url)) {
+    return;
+  }
+
+  // Skip if visited in this run or hit the page limit
   if (visitedUrls.has(url) || visitedUrls.size >= MAX_PAGES) {
     return;
   }
@@ -267,9 +274,9 @@ async function main() {
     const existingData = await fs.readFile(documentsPath, "utf-8");
     existingChunks = JSON.parse(existingData);
 
-    // Extract unique URLs from existing chunks
+    // Extract unique URLs from existing chunks and add to alreadyCrawledUrls
     const existingUrls = new Set(existingChunks.map(chunk => chunk.metadata.url));
-    existingUrls.forEach(url => visitedUrls.add(url));
+    existingUrls.forEach(url => alreadyCrawledUrls.add(url));
 
     console.log(`📚 Loaded ${existingChunks.length} existing chunks from ${existingUrls.size} pages`);
     console.log(`   Will skip these URLs and only crawl new ones\n`);
@@ -290,14 +297,21 @@ async function main() {
 
     console.log("\n" + "=".repeat(60));
     console.log(`📊 Summary:`);
-    console.log(`   URLs discovered: ${discoveredUrls.size}`);
-    console.log(`   URLs visited: ${visitedUrls.size}`);
-    console.log(`   Pages extracted: ${pages.length}`);
+    console.log(`   URLs already crawled (skipped): ${alreadyCrawledUrls.size}`);
+    console.log(`   New URLs discovered: ${discoveredUrls.size}`);
+    console.log(`   New URLs visited this run: ${visitedUrls.size}`);
+    console.log(`   Pages extracted this run: ${pages.length}`);
     console.log(`   Errors: ${errors.length}`);
 
-    if (discoveredUrls.size > visitedUrls.size) {
-      console.log(`\n⚠️  Note: ${discoveredUrls.size - visitedUrls.size} URLs were discovered but not crawled.`);
-      console.log(`   To crawl more pages, increase MAX_PAGES in scripts/ingest.ts`);
+    const totalCrawled = alreadyCrawledUrls.size + visitedUrls.size;
+    const remainingUrls = discoveredUrls.size - totalCrawled;
+
+    if (remainingUrls > 0) {
+      console.log(`\n⚠️  Note: ${remainingUrls} URLs remain to be crawled.`);
+      console.log(`   Run npm run ingest again to crawl the next ${MAX_PAGES} pages`);
+    } else if (visitedUrls.size === MAX_PAGES) {
+      console.log(`\n⚠️  Note: Hit MAX_PAGES limit (${MAX_PAGES}).`);
+      console.log(`   Run npm run ingest again to continue crawling`);
     }
 
     if (pages.length === 0) {
