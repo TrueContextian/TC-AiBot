@@ -43,3 +43,6 @@ next-env.d.ts
 # vector store
 /vectorstore
 *.faiss
+
+# crawl data
+/data/crawl-queue.json

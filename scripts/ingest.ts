@@ -268,6 +268,7 @@ async function main() {
   // Load existing documents to skip already-crawled URLs
   const dataDir = path.join(process.cwd(), "data");
   const documentsPath = path.join(dataDir, "documents.json");
+  const queuePath = path.join(dataDir, "crawl-queue.json");
   let existingChunks: DocumentChunk[] = [];
 
   try {
@@ -284,14 +285,37 @@ async function main() {
     console.log("📝 No existing data found - starting fresh crawl\n");
   }
 
+  // Load the crawl queue (URLs discovered but not yet crawled)
+  try {
+    const queueData = await fs.readFile(queuePath, "utf-8");
+    const queueUrls: string[] = JSON.parse(queueData);
+    queueUrls.forEach(url => discoveredUrls.add(url));
+    console.log(`📋 Loaded ${queueUrls.length} URLs from previous crawl queue\n`);
+  } catch (error) {
+    // Queue file doesn't exist yet - that's fine
+  }
+
   const browser = await chromium.launch({ headless: true });
 
   try {
-    // Crawl all starting URLs
-    for (const startUrl of START_URLS) {
-      if (visitedUrls.size < MAX_PAGES) {
-        console.log(`\n🌐 Starting crawl from: ${startUrl}`);
-        await crawlPage(browser, startUrl);
+    // If we have queued URLs from a previous run, crawl those first
+    if (discoveredUrls.size > 0) {
+      console.log(`🔄 Continuing from previous crawl queue...\n`);
+      const queuedUrls = Array.from(discoveredUrls);
+      for (const url of queuedUrls) {
+        if (visitedUrls.size < MAX_PAGES) {
+          await crawlPage(browser, url);
+        } else {
+          break;
+        }
+      }
+    } else {
+      // Fresh crawl - start from the beginning
+      for (const startUrl of START_URLS) {
+        if (visitedUrls.size < MAX_PAGES) {
+          console.log(`\n🌐 Starting crawl from: ${startUrl}`);
+          await crawlPage(browser, startUrl);
+        }
       }
     }
 
@@ -342,11 +366,21 @@ async function main() {
 
     console.log(`📊 Total chunks: ${existingChunks.length} existing + ${newChunks.length} new = ${allChunks.length}`);
 
-    // Save to file
+    // Save documents to file
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(
       documentsPath,
       JSON.stringify(allChunks, null, 2)
+    );
+
+    // Save crawl queue (URLs discovered but not yet crawled)
+    const totalCrawled = alreadyCrawledUrls.size + visitedUrls.size;
+    const uncrawledUrls = Array.from(discoveredUrls).filter(
+      url => !alreadyCrawledUrls.has(url) && !visitedUrls.has(url)
+    );
+    await fs.writeFile(
+      queuePath,
+      JSON.stringify(uncrawledUrls, null, 2)
     );
 
     if (newChunks.length > 0) {
@@ -357,6 +391,10 @@ async function main() {
       console.log("\n✅ No new pages crawled (all URLs already visited)");
     } else {
       console.log("\n❌ No documents to save - check the selectors!");
+    }
+
+    if (uncrawledUrls.length > 0) {
+      console.log(`\n📋 Saved ${uncrawledUrls.length} URLs to queue for next run`);
     }
 
   } finally {
