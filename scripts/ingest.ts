@@ -31,18 +31,11 @@ const START_URLS = [
 ];
 const MAX_PAGES = 500; // Increased limit for comprehensive crawl
 const visitedUrls = new Set<string>();
-const alreadyCrawledUrls = new Set<string>(); // URLs from previous runs
 const pages: DocPage[] = [];
 const errors: string[] = [];
 const discoveredUrls = new Set<string>(); // Track all discovered URLs
 
 async function crawlPage(browser: any, url: string): Promise<void> {
-  // Skip if already crawled in a previous run
-  if (alreadyCrawledUrls.has(url)) {
-    return;
-  }
-
-  // Skip if visited in this run or hit the page limit
   if (visitedUrls.has(url) || visitedUrls.size >= MAX_PAGES) {
     return;
   }
@@ -265,77 +258,30 @@ async function main() {
   START_URLS.forEach(url => console.log(`  - ${url}`));
   console.log("");
 
-  // Load existing documents to skip already-crawled URLs
   const dataDir = path.join(process.cwd(), "data");
   const documentsPath = path.join(dataDir, "documents.json");
-  const queuePath = path.join(dataDir, "crawl-queue.json");
-  let existingChunks: DocumentChunk[] = [];
-
-  try {
-    const existingData = await fs.readFile(documentsPath, "utf-8");
-    existingChunks = JSON.parse(existingData);
-
-    // Extract unique URLs from existing chunks and add to alreadyCrawledUrls
-    const existingUrls = new Set(existingChunks.map(chunk => chunk.metadata.url));
-    existingUrls.forEach(url => alreadyCrawledUrls.add(url));
-
-    console.log(`📚 Loaded ${existingChunks.length} existing chunks from ${existingUrls.size} pages`);
-    console.log(`   Will skip these URLs and only crawl new ones\n`);
-  } catch (error) {
-    console.log("📝 No existing data found - starting fresh crawl\n");
-  }
-
-  // Load the crawl queue (URLs discovered but not yet crawled)
-  try {
-    const queueData = await fs.readFile(queuePath, "utf-8");
-    const queueUrls: string[] = JSON.parse(queueData);
-    queueUrls.forEach(url => discoveredUrls.add(url));
-    console.log(`📋 Loaded ${queueUrls.length} URLs from previous crawl queue\n`);
-  } catch (error) {
-    // Queue file doesn't exist yet - that's fine
-  }
 
   const browser = await chromium.launch({ headless: true });
 
   try {
-    // If we have queued URLs from a previous run, crawl those first
-    if (discoveredUrls.size > 0) {
-      console.log(`🔄 Continuing from previous crawl queue...\n`);
-      const queuedUrls = Array.from(discoveredUrls);
-      for (const url of queuedUrls) {
-        if (visitedUrls.size < MAX_PAGES) {
-          await crawlPage(browser, url);
-        } else {
-          break;
-        }
-      }
-    } else {
-      // Fresh crawl - start from the beginning
-      for (const startUrl of START_URLS) {
-        if (visitedUrls.size < MAX_PAGES) {
-          console.log(`\n🌐 Starting crawl from: ${startUrl}`);
-          await crawlPage(browser, startUrl);
-        }
+    // Crawl all starting URLs
+    for (const startUrl of START_URLS) {
+      if (visitedUrls.size < MAX_PAGES) {
+        console.log(`\n🌐 Starting crawl from: ${startUrl}`);
+        await crawlPage(browser, startUrl);
       }
     }
 
     console.log("\n" + "=".repeat(60));
     console.log(`📊 Summary:`);
-    console.log(`   URLs already crawled (skipped): ${alreadyCrawledUrls.size}`);
-    console.log(`   New URLs discovered: ${discoveredUrls.size}`);
-    console.log(`   New URLs visited this run: ${visitedUrls.size}`);
-    console.log(`   Pages extracted this run: ${pages.length}`);
+    console.log(`   URLs discovered: ${discoveredUrls.size}`);
+    console.log(`   URLs visited: ${visitedUrls.size}`);
+    console.log(`   Pages extracted: ${pages.length}`);
     console.log(`   Errors: ${errors.length}`);
 
-    const totalCrawled = alreadyCrawledUrls.size + visitedUrls.size;
-    const remainingUrls = discoveredUrls.size - totalCrawled;
-
-    if (remainingUrls > 0) {
-      console.log(`\n⚠️  Note: ${remainingUrls} URLs remain to be crawled.`);
-      console.log(`   Run npm run ingest again to crawl the next ${MAX_PAGES} pages`);
-    } else if (visitedUrls.size === MAX_PAGES) {
-      console.log(`\n⚠️  Note: Hit MAX_PAGES limit (${MAX_PAGES}).`);
-      console.log(`   Run npm run ingest again to continue crawling`);
+    if (discoveredUrls.size > visitedUrls.size) {
+      console.log(`\n⚠️  Note: ${discoveredUrls.size - visitedUrls.size} URLs were discovered but not crawled.`);
+      console.log(`   To crawl more pages, increase MAX_PAGES in scripts/ingest.ts`);
     }
 
     if (pages.length === 0) {
@@ -352,48 +298,27 @@ async function main() {
       console.log(`\n✅ Successfully extracted content from ${pages.length} pages`);
     }
 
-    // Create chunks from newly crawled pages
-    const newChunks: DocumentChunk[] = [];
+    // Create chunks
+    const allChunks: DocumentChunk[] = [];
     for (const page of pages) {
       const chunks = chunkDocument(page);
-      newChunks.push(...chunks);
+      allChunks.push(...chunks);
     }
 
-    console.log(`\n📦 Created ${newChunks.length} new document chunks`);
+    console.log(`\n📦 Created ${allChunks.length} document chunks`);
 
-    // Merge with existing chunks
-    const allChunks = [...existingChunks, ...newChunks];
-
-    console.log(`📊 Total chunks: ${existingChunks.length} existing + ${newChunks.length} new = ${allChunks.length}`);
-
-    // Save documents to file
+    // Save to file
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(
       documentsPath,
       JSON.stringify(allChunks, null, 2)
     );
 
-    // Save crawl queue (URLs discovered but not yet crawled)
-    const uncrawledUrls = Array.from(discoveredUrls).filter(
-      url => !alreadyCrawledUrls.has(url) && !visitedUrls.has(url)
-    );
-    await fs.writeFile(
-      queuePath,
-      JSON.stringify(uncrawledUrls, null, 2)
-    );
-
-    if (newChunks.length > 0) {
+    if (allChunks.length > 0) {
       console.log("\n✅ Documents saved to data/documents.json");
-      console.log(`   New pages added: ${pages.length}`);
-      console.log(`   Total chunks in database: ${allChunks.length}`);
-    } else if (existingChunks.length > 0) {
-      console.log("\n✅ No new pages crawled (all URLs already visited)");
+      console.log(`Total chunks: ${allChunks.length}`);
     } else {
       console.log("\n❌ No documents to save - check the selectors!");
-    }
-
-    if (uncrawledUrls.length > 0) {
-      console.log(`\n📋 Saved ${uncrawledUrls.length} URLs to queue for next run`);
     }
 
   } finally {
