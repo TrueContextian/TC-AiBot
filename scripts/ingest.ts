@@ -258,6 +258,25 @@ async function main() {
   START_URLS.forEach(url => console.log(`  - ${url}`));
   console.log("");
 
+  // Load existing documents to skip already-crawled URLs
+  const dataDir = path.join(process.cwd(), "data");
+  const documentsPath = path.join(dataDir, "documents.json");
+  let existingChunks: DocumentChunk[] = [];
+
+  try {
+    const existingData = await fs.readFile(documentsPath, "utf-8");
+    existingChunks = JSON.parse(existingData);
+
+    // Extract unique URLs from existing chunks
+    const existingUrls = new Set(existingChunks.map(chunk => chunk.metadata.url));
+    existingUrls.forEach(url => visitedUrls.add(url));
+
+    console.log(`📚 Loaded ${existingChunks.length} existing chunks from ${existingUrls.size} pages`);
+    console.log(`   Will skip these URLs and only crawl new ones\n`);
+  } catch (error) {
+    console.log("📝 No existing data found - starting fresh crawl\n");
+  }
+
   const browser = await chromium.launch({ headless: true });
 
   try {
@@ -295,26 +314,33 @@ async function main() {
       console.log(`\n✅ Successfully extracted content from ${pages.length} pages`);
     }
 
-    // Create chunks
-    const allChunks: DocumentChunk[] = [];
+    // Create chunks from newly crawled pages
+    const newChunks: DocumentChunk[] = [];
     for (const page of pages) {
       const chunks = chunkDocument(page);
-      allChunks.push(...chunks);
+      newChunks.push(...chunks);
     }
 
-    console.log(`\n📦 Created ${allChunks.length} document chunks`);
+    console.log(`\n📦 Created ${newChunks.length} new document chunks`);
+
+    // Merge with existing chunks
+    const allChunks = [...existingChunks, ...newChunks];
+
+    console.log(`📊 Total chunks: ${existingChunks.length} existing + ${newChunks.length} new = ${allChunks.length}`);
 
     // Save to file
-    const dataDir = path.join(process.cwd(), "data");
     await fs.mkdir(dataDir, { recursive: true });
     await fs.writeFile(
-      path.join(dataDir, "documents.json"),
+      documentsPath,
       JSON.stringify(allChunks, null, 2)
     );
 
-    if (allChunks.length > 0) {
+    if (newChunks.length > 0) {
       console.log("\n✅ Documents saved to data/documents.json");
-      console.log(`Total chunks: ${allChunks.length}`);
+      console.log(`   New pages added: ${pages.length}`);
+      console.log(`   Total chunks in database: ${allChunks.length}`);
+    } else if (existingChunks.length > 0) {
+      console.log("\n✅ No new pages crawled (all URLs already visited)");
     } else {
       console.log("\n❌ No documents to save - check the selectors!");
     }
