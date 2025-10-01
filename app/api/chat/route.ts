@@ -1,4 +1,4 @@
-import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
 import { streamText, convertToCoreMessages } from "ai";
 import { searchDocuments } from "@/lib/simpleSearch";
 
@@ -6,6 +6,15 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
+    // Check API key
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("OPENAI_API_KEY is not set!");
+      return new Response(
+        JSON.stringify({ error: "API key not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages } = await req.json();
 
     if (!messages || messages.length === 0) {
@@ -60,8 +69,11 @@ Now answer the user's question based on this context. If you cite information, m
     // Convert messages to core format and add system message
     const coreMessages = convertToCoreMessages([systemMessage, ...messages]);
 
+    console.log("Calling OpenAI API with", coreMessages.length, "messages");
+    console.log("Context docs found:", contextDocs.length);
+
     const result = streamText({
-      model: anthropic("claude-3-5-sonnet-20241022"),
+      model: openai("gpt-4-turbo-preview"),
       messages: coreMessages,
       temperature: 0.7,
       maxTokens: 2000,
@@ -69,9 +81,15 @@ Now answer the user's question based on this context. If you cite information, m
 
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error("Error in chat API:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error in chat API:", errorMessage);
+    console.error("Stack trace:", errorStack);
     return new Response(
-      JSON.stringify({ error: "An error occurred processing your request" }),
+      JSON.stringify({
+        error: "An error occurred processing your request",
+        details: errorMessage
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
