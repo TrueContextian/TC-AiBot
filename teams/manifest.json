@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
   "manifestVersion": "1.17",
   "version": "1.0.0",
-  "id": "YOUR_APP_ID_HERE",
+  "id": "8ce4b3fb-f4ef-4c0a-94ce-7c89d232974c",
   "packageName": "com.truecontext.aibot",
   "developer": {
     "name": "TrueContext",
@@ -28,8 +28,8 @@
     {
       "entityId": "tcaibot",
       "name": "TrueContext AI",
-      "contentUrl": "https://YOUR_DEPLOYMENT_URL.vercel.app?teams=true",
-      "websiteUrl": "https://YOUR_DEPLOYMENT_URL.vercel.app",
+      "contentUrl": "https://tc-ai-bot.vercel.app?teams=true",
+      "websiteUrl": "https://tc-ai-bot.vercel.app",
       "scopes": ["personal", "team"]
     }
   ],
@@ -41,10 +41,10 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "YOUR_DEPLOYMENT_URL.vercel.app"
+    "tc-ai-bot.vercel.app"
   ],
   "webApplicationInfo": {
-    "id": "YOUR_AAD_APP_ID_HERE",
-    "resource": "api://YOUR_DEPLOYMENT_URL.vercel.app"
+    "id": "8ce4b3fb-f4ef-4c0a-94ce-7c89d232974c",
+    "resource": "api://tc-ai-bot.vercel.app"
   }
 }

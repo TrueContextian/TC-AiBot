@@ -21,10 +21,11 @@ interface DocumentChunk {
 
 const BASE_URL = "https://docs.truecontext.com";
 const START_URL = "https://docs.truecontext.com/1374411/Content/Home.htm"; // Main documentation entry point
-const MAX_PAGES = 100; // Limit for initial crawl
+const MAX_PAGES = 500; // Increased limit for comprehensive crawl
 const visitedUrls = new Set<string>();
 const pages: DocPage[] = [];
 const errors: string[] = [];
+const discoveredUrls = new Set<string>(); // Track all discovered URLs
 
 async function crawlPage(browser: any, url: string): Promise<void> {
   if (visitedUrls.has(url) || visitedUrls.size >= MAX_PAGES) {
@@ -114,17 +115,26 @@ async function crawlPage(browser: any, url: string): Promise<void> {
           }
         }
 
+        // Clean up URL (remove trailing slashes, fragments)
+        absoluteUrl = absoluteUrl.split("#")[0].replace(/\/$/, "");
+
         // Only crawl docs.truecontext.com pages, skip anchors and external links
         if (
           absoluteUrl.startsWith(BASE_URL) &&
-          !absoluteUrl.includes("#") &&
           !absoluteUrl.includes("javascript:") &&
-          !absoluteUrl.includes("mailto:")
+          !absoluteUrl.includes("mailto:") &&
+          (absoluteUrl.includes("/Content/") || absoluteUrl.includes("/Published/"))
         ) {
           links.push(absoluteUrl);
+          discoveredUrls.add(absoluteUrl);
         }
       }
     });
+
+    // Report progress
+    if (visitedUrls.size % 10 === 0) {
+      console.log(`  Progress: ${visitedUrls.size}/${MAX_PAGES} visited, ${discoveredUrls.size} discovered, ${pages.length} extracted`);
+    }
 
     // Crawl linked pages
     for (const link of links) {
@@ -235,9 +245,15 @@ async function main() {
 
     console.log("\n" + "=".repeat(60));
     console.log(`📊 Summary:`);
+    console.log(`   URLs discovered: ${discoveredUrls.size}`);
     console.log(`   URLs visited: ${visitedUrls.size}`);
     console.log(`   Pages extracted: ${pages.length}`);
     console.log(`   Errors: ${errors.length}`);
+
+    if (discoveredUrls.size > visitedUrls.size) {
+      console.log(`\n⚠️  Note: ${discoveredUrls.size - visitedUrls.size} URLs were discovered but not crawled.`);
+      console.log(`   To crawl more pages, increase MAX_PAGES in scripts/ingest.ts`);
+    }
 
     if (pages.length === 0) {
       console.log("\n⚠️  WARNING: No pages were successfully extracted!");
@@ -249,6 +265,8 @@ async function main() {
         console.log("\nErrors encountered:");
         errors.slice(0, 3).forEach(err => console.log(`  - ${err}`));
       }
+    } else {
+      console.log(`\n✅ Successfully extracted content from ${pages.length} pages`);
     }
 
     // Create chunks
