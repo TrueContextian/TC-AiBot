@@ -20,7 +20,8 @@ interface DocumentChunk {
 }
 
 const BASE_URL = "https://docs.truecontext.com";
-const MAX_PAGES = 50; // Limit for initial crawl (reduced for faster testing)
+const START_URL = "https://docs.truecontext.com/1374411/Content/Home.htm"; // Main documentation entry point
+const MAX_PAGES = 100; // Limit for initial crawl
 const visitedUrls = new Set<string>();
 const pages: DocPage[] = [];
 const errors: string[] = [];
@@ -35,7 +36,10 @@ async function crawlPage(browser: any, url: string): Promise<void> {
 
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+    // Use "domcontentloaded" instead of "networkidle" for faster, more reliable loading
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+    // Wait a bit for dynamic content to load
+    await page.waitForTimeout(2000);
 
     const html = await page.content();
     await page.close();
@@ -95,14 +99,28 @@ async function crawlPage(browser: any, url: string): Promise<void> {
       const href = $(elem).attr("href");
       if (href) {
         let absoluteUrl = href;
+
+        // Handle different URL patterns
         if (href.startsWith("/")) {
           absoluteUrl = BASE_URL + href;
-        } else if (!href.startsWith("http")) {
-          absoluteUrl = new URL(href, url).href;
+        } else if (href.startsWith("http")) {
+          absoluteUrl = href;
+        } else {
+          // Relative URLs - resolve against current page
+          try {
+            absoluteUrl = new URL(href, url).href;
+          } catch (e) {
+            return; // Skip invalid URLs
+          }
         }
 
-        // Only crawl docs.truecontext.com pages
-        if (absoluteUrl.startsWith(BASE_URL) && !absoluteUrl.includes("#")) {
+        // Only crawl docs.truecontext.com pages, skip anchors and external links
+        if (
+          absoluteUrl.startsWith(BASE_URL) &&
+          !absoluteUrl.includes("#") &&
+          !absoluteUrl.includes("javascript:") &&
+          !absoluteUrl.includes("mailto:")
+        ) {
           links.push(absoluteUrl);
         }
       }
@@ -208,11 +226,12 @@ function chunkDocument(doc: DocPage): DocumentChunk[] {
 
 async function main() {
   console.log("Starting TrueContext documentation crawl...");
+  console.log(`Starting from: ${START_URL}\n`);
 
   const browser = await chromium.launch({ headless: true });
 
   try {
-    await crawlPage(browser, BASE_URL);
+    await crawlPage(browser, START_URL);
 
     console.log("\n" + "=".repeat(60));
     console.log(`📊 Summary:`);
